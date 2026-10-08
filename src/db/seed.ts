@@ -10,8 +10,7 @@ const medabotsData: NewMedabot[] = [
     type: 'Escarabajo Hércules (KBT)',
     head: 'Head Beam',
     leftArm: 'Missile',
-    rightArm: 'Missile',
-    legs: 'Tank (Dos piernas)',
+    rightArm: 'Missile'
   },
   {
     name: 'Rokusho',
@@ -19,8 +18,7 @@ const medabotsData: NewMedabot[] = [
     type: 'Escarabajo Ciervo (KWG)',
     head: 'Chanbara Sword',
     leftArm: 'Sword',
-    rightArm: 'Sword',
-    legs: 'Tank (Dos piernas)',
+    rightArm: 'Sword'
   },
   {
     name: 'Totalizer',
@@ -28,8 +26,7 @@ const medabotsData: NewMedabot[] = [
     type: 'Tanque / Tortuga',
     head: 'Gatling Gun',
     leftArm: 'Cannon',
-    rightArm: 'Cannon',
-    legs: 'Tanque (Orugas)',
+    rightArm: 'Cannon'
   },
   {
     name: 'Peppercat',
@@ -37,8 +34,7 @@ const medabotsData: NewMedabot[] = [
     type: 'Gato',
     head: 'Electric Shock',
     leftArm: 'Circular Saw',
-    rightArm: 'Circular Saw',
-    legs: 'Rápido / Ágil',
+    rightArm: 'Circular Saw'
   },
   {
     name: 'Sumilidon',
@@ -46,8 +42,7 @@ const medabotsData: NewMedabot[] = [
     type: 'Tigre Dientes de Sable',
     head: 'Sabre Fang',
     leftArm: 'Sabre Claw',
-    rightArm: 'Sabre Claw',
-    legs: 'Ágil (Dos piernas)',
+    rightArm: 'Sabre Claw'
   },
 ];
 
