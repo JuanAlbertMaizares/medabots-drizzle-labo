@@ -4,6 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:api": "node --import tsx --watch src/api.ts",
+    "start:api": "node --import tsx src/api.ts",
+    "dev:lab": "tsx watch src/main.ts",
+    "start:lab": "tsx src/main.ts",
+
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
@@ -27,9 +32,13 @@
   "packageManager": "pnpm@12.10.1",
   "type": "module",
   "dependencies": {
+    "@hono/node-server": "^2.1.4",
+    "@hono/zod-validator": "^0.9.1",
     "dotenv": "^18.0.5",
     "drizzle-orm": "^0.45.3",
-    "pg": "^8.23.1"
+    "hono": "^4.13.13",
+    "pg": "^8.23.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
