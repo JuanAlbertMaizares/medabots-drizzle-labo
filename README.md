@@ -42,16 +42,41 @@ Cada capa tiene una responsabilidad clara y aislada:
 
 ```
 medabots-repository/
-├── drizzle/                     # Migraciones SQL generadas por Drizzle Kit
+├── drizzle/
 ├── src/
+│   ├── controllers/
+│   │   └── medabot.controller.ts    # Rutas HTTP + validación Zod
+│   ├── services/
+│   │   └── medabot.service.ts       # Lógica de negocio
 │   ├── db/
-│   │   ├── index.ts             # Pool de conexión + instancia Drizzle
-│   │   ├── schema.ts            # Definición tipada de la tabla `medabots`
-│   │   └── seed.ts              # Carga inicial de datos de ejemplo
+│   │   ├── index.ts
+│   │   ├── schema.ts
+│   │   └── seed.ts
 │   ├── repositories/
-│   │   └── medabot.repository.ts # CRUD encapsulado
-│   └── main.ts                  # Laboratorio de pruebas
-├── .env.example                 # Plantilla de variables de entorno
+│   │   └── medabot.repository.ts
+│   ├── api.ts                        # Entry point del servidor Hono
+│   └── main.ts                       # Laboratorio de persistencia
+├── .env.example
+├── .gitignore
+├── drizzle.config.ts
+├── package.json
+├── tsconfig.json
+└── README.mdmedabots-repository/
+├── drizzle/
+├── src/
+│   ├── controllers/
+│   │   └── medabot.controller.ts    # Rutas HTTP + validación Zod
+│   ├── services/
+│   │   └── medabot.service.ts       # Lógica de negocio
+│   ├── db/
+│   │   ├── index.ts
+│   │   ├── schema.ts
+│   │   └── seed.ts
+│   ├── repositories/
+│   │   └── medabot.repository.ts
+│   ├── api.ts                        # Entry point del servidor Hono
+│   └── main.ts                       # Laboratorio de persistencia
+├── .env.example
 ├── .gitignore
 ├── drizzle.config.ts
 ├── package.json
@@ -138,14 +163,15 @@ Vas a ver en consola cómo el script ejecuta un CRUD completo paso a paso. **Mie
 
 | Script | Descripción |
 |---|---|
-| `pnpm start` | Ejecuta el laboratorio (`main.ts`) una sola vez |
-| `pnpm dev` | Ejecuta `main.ts` en modo watch |
+| `pnpm dev:api` | Levanta la API en modo watch |
+| `pnpm start:api` | Levanta la API una sola vez |
+| `pnpm dev:lab` | Ejecuta el laboratorio en modo watch |
+| `pnpm start:lab` | Ejecuta el laboratorio una sola vez |
 | `pnpm typecheck` | Verifica tipos sin emitir archivos |
-| `pnpm db:generate` | Genera un archivo de migración desde el schema |
-| `pnpm db:migrate` | Aplica migraciones pendientes a la base |
-| `pnpm db:push` | Empuja el schema directo (sin migración) |
-| `pnpm db:studio` | Abre Drizzle Studio (UI web para ver/editar datos) |
+| `pnpm db:generate` | Genera una migración desde el schema |
+| `pnpm db:migrate` | Aplica migraciones pendientes |
 | `pnpm db:seed` | Carga datos de ejemplo |
+| `pnpm db:studio` | Abre Drizzle Studio |
 
 ---
 
@@ -172,6 +198,70 @@ Lo que **no** hace un Repository:
 - **Sin magia**: no hay "lazy loading" ni proxies ocultos. Lo que ves es lo que se ejecuta.
 
 ---
+## 🌐 API HTTP (Hono)
+
+El proyecto expone una API REST construida con **Hono** y validada con **Zod**.
+
+### Arquitectura en capas
+
+```
+HTTP → Hono → Controller → Service → Repository → Drizzle → PostgreSQL
+```
+
+| Capa | Responsabilidad | ¿Qué NO hace? |
+|---|---|---|
+| **Controller** | Maneja request/response HTTP, valida entrada con Zod. | No contiene lógica de negocio. |
+| **Service** | Lógica de negocio y orquestación. | No sabe de HTTP (no ve `req`/`res`). |
+| **Repository** | Persistencia pura (CRUD). | No conoce reglas de dominio. |
+
+### Levantar el servidor
+
+```bash
+pnpm dev:api
+```
+
+Por defecto escucha en `http://localhost:3000` (configurable con `PORT`).
+
+### Endpoints
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/health` | Health check (útil para Render) |
+| `GET` | `/api/medabots` | Lista todos los Medabots |
+| `GET` | `/api/medabots/:id` | Obtiene uno por ID (404 si no existe) |
+| `POST` | `/api/medabots` | Crea uno nuevo (201 Created) |
+| `PUT` | `/api/medabots/:id` | Actualiza parcialmente (404 si no existe) |
+| `DELETE` | `/api/medabots/:id` | Elimina (204 No Content, 404 si no existe) |
+
+### Ejemplos con `curl`
+
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# Listar todos
+curl http://localhost:3000/api/medabots
+
+# Crear uno
+curl -X POST http://localhost:3000/api/medabots \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Metal Beetle","medaforce":"Beam","type":"Escarabajo","head":"Beam","leftArm":"Missile","rightArm":"Missile","legs":"Tank"}'
+
+# Obtener por ID
+curl http://localhost:3000/api/medabots/1
+
+# Actualizar parcialmente
+curl -X PUT http://localhost:3000/api/medabots/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Metal Beetle MK-II"}'
+
+# Eliminar
+curl -X DELETE http://localhost:3000/api/medabots/1
+```
+
+### Validación con Zod
+
+Todos los endpoints que reciben body (`POST`, `PUT`) validan la entrada contra un esquema Zod. Si el body no cumple, Hono devuelve `400 Bad Request` automáticamente vía `@hono/zod-validator`, antes de que el Service o la DB lo vean.
 
 ## 🗺️ Hoja de ruta
 
