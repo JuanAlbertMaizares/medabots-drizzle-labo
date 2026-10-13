@@ -44,6 +44,90 @@ Cada capa tiene una responsabilidad clara y aislada:
 - **Docker** + **Render** (empaquetado y despliegue)
 
 ---
+## 🧭 Cadena de decisiones
+
+Construir software es una cadena de decisiones, no una cadena de líneas de código. Cada elección habilita la siguiente y condiciona el resto del proyecto. Este diagrama resume las bifurcaciones clave que atraviesa cualquier desarrollador al llevar una idea desde el laboratorio hasta producción:
+
+```mermaid
+flowchart TD
+    A["🎯 Punto de partida<br/>¿Qué quiero construir?"] --> B["🧭 Elegir alcance<br/>¿API completa o laboratorio?"]
+    B -->|Laboratorio| C["🔬 Aislar concepto<br/>Una sola cosa a la vez"]
+    B -->|API| D["🏗️ Diseñar capas<br/>Controller / Service / Repository"]
+
+    C --> E["📚 Elegir stack"]
+    D --> E
+
+    E --> F{"¿Qué DB?"}
+    F -->|Local| G["🐘 PostgreSQL nativo<br/>más control, más fricción"]
+    F -->|Cloud| H["☁️ Neon / Supabase<br/>menos infra, más dependencia"]
+
+    G --> I{"¿ORM o SQL crudo?"}
+    H --> I
+
+    I -->|ORM| J["🧩 Drizzle / Prisma<br/>tipado fuerte, curva media"]
+    I -->|SQL crudo| K["📝 pg / postgres.js<br/>control total, tipado manual"]
+
+    J --> L{"¿Cómo modelo el dominio?"}
+    K --> L
+
+    L --> M["📐 Definir schema primero<br/>code-first"]
+    M --> N["🔁 Migraciones versionadas<br/>generate + migrate"]
+
+    N --> O{"¿Cómo expongo los datos?"}
+    O -->|Sin HTTP| P["🧪 main.ts laboratorio<br/>observar efecto directo"]
+    O -->|Con HTTP| Q["🌐 Hono + Controller<br/>separar responsabilidades"]
+
+    P --> R["🧠 Encapsular en Repository"]
+    Q --> S["🧠 Service + Repository"]
+    R --> T{"¿Listo para producción?"}
+    S --> T
+
+    T -->|No| U["🔁 Iterar local<br/>ver cambios en pgAdmin/Neon"]
+    U --> T
+    T -->|Sí| V{"¿Cómo empaqueto?"}
+
+    V -->|Sin Docker| W["⚠️ Deploy directo<br/>menos reproducible"]
+    V -->|Con Docker| X["🐳 Imagen portable<br/>misma app en cualquier entorno"]
+
+    X --> Y{"¿Dónde hosteo?"}
+    Y -->|PaaS| Z["🚀 Render / Railway<br/>Docker + env vars en dashboard"]
+    Y -->|VPS| AA["🖥️ VPS + reverse proxy<br/>más control, más mantenimiento"]
+
+    Z --> AB{"¿Dónde vive la DB?"}
+    AA --> AB
+
+    AB -->|En el PaaS| AC["⏳ Plan free con expiración<br/>30 días y se borra"]
+    AB -->|Externa| AD["✅ Neon free permanente<br/>sin expiración"]
+
+    AD --> AE{"¿Dónde van los secretos?"}
+    AC --> AE
+
+    AE -->|En el código| AF["❌ Peligro<br/>credenciales expuestas"]
+    AE -->|En runtime| AG["✅ Env vars del host<br/>imagen limpia, portable"]
+
+    AG --> AH["🎉 Producción<br/>URL pública, API viva"]
+
+    style A fill:#1e3a8a,color:#fff
+    style AH fill:#166534,color:#fff
+    style AF fill:#991b1b,color:#fff
+    style AC fill:#92400e,color:#fff
+    style W fill:#92400e,color:#fff
+```
+
+### Las decisiones clave y su por qué
+
+| Decisión | Bifurcación | Criterio que la resuelve |
+|---|---|---|
+| **Alcance** | Laboratorio vs. API | ¿Querés entender un concepto o construir un producto? |
+| **DB** | Local vs. Cloud | ¿Necesitás control total o portabilidad inmediata? |
+| **Acceso a datos** | ORM vs. SQL crudo | ¿Preferís velocidad de desarrollo o control granular? |
+| **Modelado** | Schema primero | El dominio se piensa antes de escribir lógica de negocio. |
+| **Exposición** | Sin HTTP vs. con HTTP | ¿Es un experimento o ya está listo para el mundo? |
+| **Empaquetado** | Docker vs. directo | ¿Necesitás reproducibilidad entre entornos? |
+| **Hosting** | PaaS vs. VPS | ¿Cuánto tiempo querés invertir en infraestructura? |
+| **Secretos** | En imagen vs. runtime | Los secretos **siempre** van fuera de la imagen. |
+
+Cada decisión tiene un costo y un beneficio. El valor de un profesional no está en memorizar la respuesta correcta, sino en **saber qué preguntar antes de elegir**.
 
 ## 🗂️ Estructura
 
