@@ -13,9 +13,16 @@ app.route('/api/medabots', medabotController);
 
 const port = Number(process.env.PORT) || 3000;
 
-const server = serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`🚀 API de Medabots escuchando en http://localhost:${info.port}`);
-});
+const server = serve(
+  {
+    fetch: app.fetch,
+    port,
+    hostname: process.env.HOSTNAME_BIND || undefined,
+  },
+  (info) => {
+    console.log(`🚀 API de Medabots escuchando en http://localhost:${info.port}`);
+  }
+);
 
 // Cierre limpio con tope de tiempo
 let closing = false;
